@@ -47,27 +47,27 @@ export const MonicaSidebar: React.FC = React.memo(() => {
         <SidebarItem
           name={t('GPT-3.5')}
           icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/friends"
+          to="/main/monica/GPT-3.5"
         />
         <SidebarItem
           name={t('GPT-4.0')}
           icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/plugins"
+          to="/main/monica/GPT-4.0"
         />
         <SidebarItem
           name={t('Bard')}
           icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/plugins"
+          to="/main/monica/Bard"
         />
         <SidebarItem
           name={t('Claude+')}
           icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/plugins"
+          to="/main/monica/Claude+"
         />
         <SidebarItem
           name={t('Claude-Instant-100k')}
           icon={<Icon icon="mdi:puzzle" />}
-          to="/main/personal/plugins"
+          to="/main/monica/Claude-Instant-100k"
         />
       </div>
     </CommonSidebarWrapper>

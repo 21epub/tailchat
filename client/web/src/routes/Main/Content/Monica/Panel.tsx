@@ -12,7 +12,6 @@ import {
   useGroupInfo,
   useGroupPanelInfo,
 } from 'tailchat-shared';
-import { useGroupPanelParams } from './utils';
 
 /**
  * 记录下最后访问的面板id
@@ -91,9 +90,10 @@ export const GroupPanelRender: React.FC<GroupPanelRenderProps> = React.memo(
 GroupPanelRender.displayName = 'GroupPanelRender';
 
 export const GroupPanelRoute: React.FC = React.memo(() => {
-  const { groupId, panelId } = useGroupPanelParams();
-  console.log('[groupId]', groupId, panelId);
+  // const { groupId, panelId } = [];
 
+  const groupId = '64a4346afdfd285d061b4d97';
+  const panelId = '64a4346afdfd285d061b4d96';
   return <GroupPanelRender groupId={groupId} panelId={panelId} />;
 });
 GroupPanelRoute.displayName = 'GroupPanelRoute';
