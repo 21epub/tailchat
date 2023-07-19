@@ -6,8 +6,12 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/routing-type: edge
 spec:
+  tls:
+    - hosts:
+        - tailchat.21epub.com
+      secretName: tailchat-https  
   rules:
-  - host: tailchat.internal.com
+  - host: tailchat.21epub.com
     http:
       paths:
       - path: /
@@ -17,3 +21,10 @@ spec:
             name: tailchat-service
             port:
               number: 11000
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: tailchat-admin-service
+            port:
+              number: 3000        
