@@ -82,15 +82,17 @@ export const ConversePanel: React.FC<ConversePanelProps> = React.memo(
                   onClick={() => action.onClick({ converseId })}
                 />
               )),
-            <IconBtn
-              key="open"
-              title={t('在新窗口打开')}
-              shape="square"
-              icon="mdi:dock-window"
-              iconClassName="text-2xl"
-              onClick={openPanelWindow}
-            />,
-            converse.members.length === 2 ? (
+            sendMessageCallback ? null : (
+              <IconBtn
+                key="open"
+                title={t('在新窗口打开')}
+                shape="square"
+                icon="mdi:dock-window"
+                iconClassName="text-2xl"
+                onClick={openPanelWindow}
+              />
+            ),
+            sendMessageCallback ? null : converse.members.length === 2 ? (
               <IconBtn
                 key="create"
                 title={t('创建会话')}
@@ -121,21 +123,25 @@ export const ConversePanel: React.FC<ConversePanelProps> = React.memo(
               />
             ),
             // 当成员数大于2时，显示成员列表按钮
-            converse.members.length > 2 && (
-              <IconBtn
-                key="members"
-                title={t('成员列表')}
-                shape="square"
-                icon="mdi:account-supervisor-outline"
-                iconClassName="text-2xl"
-                onClick={() =>
-                  setRightPanel({
-                    name: t('成员') + ` (${converse.members.length})`,
-                    panel: <ConversePanelMembers members={converse.members} />,
-                  })
-                }
-              />
-            ),
+            sendMessageCallback
+              ? null
+              : converse.members.length > 2 && (
+                  <IconBtn
+                    key="members"
+                    title={t('成员列表')}
+                    shape="square"
+                    icon="mdi:account-supervisor-outline"
+                    iconClassName="text-2xl"
+                    onClick={() =>
+                      setRightPanel({
+                        name: t('成员') + ` (${converse.members.length})`,
+                        panel: (
+                          <ConversePanelMembers members={converse.members} />
+                        ),
+                      })
+                    }
+                  />
+                ),
           ]);
         }}
       >
