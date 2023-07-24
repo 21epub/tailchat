@@ -18,15 +18,17 @@ type ChatBoxProps =
       converseTitle?: React.ReactNode;
       isGroup: false;
       groupId?: string;
+      sendMessageCallback?: Function;
     }
   | {
       converseId: string;
       converseTitle?: React.ReactNode;
       isGroup: true;
       groupId: string;
+      sendMessageCallback?: Function;
     };
 const ChatBoxInner: React.FC<ChatBoxProps> = React.memo((props) => {
-  const { converseId, converseTitle } = props;
+  const { converseId, converseTitle, sendMessageCallback } = props;
   const {
     messages,
     loading,
@@ -61,6 +63,7 @@ const ChatBoxInner: React.FC<ChatBoxProps> = React.memo((props) => {
       <ChatInputBox
         onSendMsg={(msg, meta) => {
           const content = preprocessMessage(msg);
+
           sendMessage({
             converseId: props.converseId,
             groupId: props.groupId,
@@ -68,6 +71,7 @@ const ChatBoxInner: React.FC<ChatBoxProps> = React.memo((props) => {
             plain: getMessageTextDecorators().serialize(content),
             meta,
           });
+          if (sendMessageCallback) sendMessageCallback(content);
         }}
       />
     </div>
@@ -81,6 +85,7 @@ export const ChatBox: React.FC<ChatBoxProps> = React.memo((props) => {
       <ConverseMessageProvider
         converseId={props.converseId}
         isGroup={props.isGroup}
+        sendMessageCallback={props.sendMessageCallback}
       >
         <ChatBoxInner {...props} />
       </ConverseMessageProvider>

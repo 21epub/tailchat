@@ -3,18 +3,25 @@ import { ConversePanel } from '@/components/Panel/personal/ConversePanel';
 import React from 'react';
 import { useParams } from 'react-router';
 
-export const MonicaConverse: React.FC = React.memo(({ converseId }: any) => {
-  // const { converseId } = useParams();
+export const MonicaConverse: React.FC = React.memo(
+  ({ converseId, sendMessageCallback }: any) => {
+    // const { converseId } = useParams();
 
-  // const params ={
-  //   converseId:converseId
+    // const params ={
+    //   converseId:converseId
 
-  // }
-  console.log('[MonicaConverse]', converseId);
-  if (!converseId) {
-    return <NotFound />;
+    // }
+    console.log('[MonicaConverse]', converseId);
+    if (!converseId) {
+      return <NotFound />;
+    }
+
+    return (
+      <ConversePanel
+        converseId={converseId}
+        sendMessageCallback={sendMessageCallback}
+      />
+    );
   }
-
-  return <ConversePanel converseId={converseId} />;
-});
+);
 MonicaConverse.displayName = 'MonicaConverse';

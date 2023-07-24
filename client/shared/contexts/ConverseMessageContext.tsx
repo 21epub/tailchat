@@ -28,9 +28,10 @@ export const ConverseMessageProvider: React.FC<
   React.PropsWithChildren<{
     converseId: string;
     isGroup: boolean;
+    sendMessageCallback: Function;
   }>
 > = React.memo((props) => {
-  const { converseId, isGroup } = props;
+  const { converseId, isGroup, sendMessageCallback } = props;
   const {
     messages,
     loading,
@@ -42,6 +43,7 @@ export const ConverseMessageProvider: React.FC<
   } = useConverseMessage({
     converseId,
     isGroup,
+    sendMessageCallback,
   });
 
   return (

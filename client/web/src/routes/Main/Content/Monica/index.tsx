@@ -9,6 +9,7 @@ import { MonicaSidebar } from './Sidebar';
 import { GroupPanelRender, GroupPanelRoute } from './Panel';
 import axios from 'axios';
 import { MonicaConverse } from './Converse';
+
 /*
 http://127.0.0.1:11000/api/openapi/app/setAppBotInfo
 {"appId":"tc_64ba79a000667beec62113d4","fieldName":"callbackUrl","fieldValue":"http://127.0.0.1:11000/api/chat/ack/test"}
@@ -155,13 +156,92 @@ http://127.0.0.1:11000/api/chat/converse/createDMConverse
 
 */
 
+let apiURL = location.host;
+const hostname = location.hostname;
+if (hostname == '127.0.0.1' || hostname == 'localhost') {
+  apiURL = apiURL.replace('11011', '11000');
+}
+const tokenMaps = {};
+async function signUserTokenAIChatBot(userId: String): Promise<string> {
+  const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
+  const res: any = await axios
+    .post(
+      `//` + apiURL + `/api/user/signUserToken`,
+      { userId: userId },
+      {
+        headers: {
+          'x-token': JSON.parse(token).rawData,
+        },
+      }
+    )
+    .then(function (response) {
+      console.log(response);
+      return response;
+    });
+
+  // .json<{ data: { token: string } }>();
+
+  return res;
+}
+
+async function sendMessageAIChatBot(
+  converseId: String,
+  content: String,
+  plain: String,
+  meta: any,
+  monicaItemId: string
+): Promise<string> {
+  const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
+  const memberId = ConverseMap[monicaItemId]['memberId'];
+  // let tokenNew = '';
+  // if (tokenMaps[memberId]) {
+  //   tokenNew = tokenMaps[memberId];
+  // } else {
+  const tokenNew = await signUserTokenAIChatBot(memberId);
+  //   tokenMaps[memberId] = tokenNew;
+  // }
+
+  // const  tokenNew = crypto
+  //     .createHash('md5')
+  //     .update(memberId + "wagon000")
+  //     .digest('hex');
+
+  console.log(
+    '[sendMessageAIChatBot]',
+    converseId,
+    content,
+    plain,
+    meta,
+    memberId,
+    tokenNew
+  );
+  const res: any = await axios
+    .post(
+      `//` + apiURL + `/api/chat/message/sendMessage`,
+      { converseId: converseId, content: content, plain: plain, meta: meta },
+      {
+        headers: {
+          'x-token': tokenNew.data.data || JSON.parse(token).rawData,
+        },
+      }
+    )
+    .then(function (response) {
+      console.log(response);
+      return response;
+    });
+
+  // .json<{ data: { token: string } }>();
+
+  return res;
+}
+
 async function createDMConverseAIChatBot(
   memberIds: Array<String>
 ): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/chat/converse/createDMConverse`,
+      `//` + apiURL + `/api/chat/converse/createDMConverse`,
       { memberIds: memberIds },
       {
         headers: {
@@ -183,7 +263,7 @@ async function acceptAIChatBot(requestId: string): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/friend/request/acceptOther`,
+      `//` + apiURL + `/api/friend/request/acceptOther`,
       { requestId: requestId },
       {
         headers: {
@@ -205,7 +285,7 @@ async function searchAIChatBot(uniqueName: string): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/user/searchUserWithUniqueName`,
+      `//` + apiURL + `/api/user/searchUserWithUniqueName`,
       { uniqueName: uniqueName },
       {
         headers: {
@@ -232,7 +312,7 @@ async function registerAIChatBot(
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/user/register`,
+      `//` + apiURL + `/api/user/register`,
       {
         email: email,
         nickname: nickname,
@@ -259,7 +339,7 @@ async function isAddAIChatBot(to: string): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/friend/request/isAdd`,
+      `//` + apiURL + `/api/friend/request/isAdd`,
       { to: to },
       {
         headers: {
@@ -281,7 +361,7 @@ async function addAIChatBot(to: string): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/friend/request/add`,
+      `//` + apiURL + `/api/friend/request/add`,
       { to: to },
       {
         headers: {
@@ -304,7 +384,7 @@ async function registerTemporaryAccount(
   nickname: string
 ): Promise<string> {
   const res: any = await axios
-    .post(`http://127.0.0.1:11000/api/user/createTemporaryUser`, {
+    .post(`//` + apiURL + `/api/user/createTemporaryUser`, {
       nickname: nickname,
     })
     .then(function (response) {
@@ -321,7 +401,7 @@ async function findUserByEmail(email: string): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
   const res: any = await axios
     .post(
-      `http://127.0.0.1:11000/api/user/verifyEmail2`,
+      `//` + apiURL + `/api/user/verifyEmail2`,
       { email: email },
       {
         headers: {
@@ -406,7 +486,10 @@ export const Monica: React.FC = React.memo(() => {
     const converseId: any = gtp35Converse.data.data._id;
 
     console.log('[MonicaConverse]', nickname, converseId);
-    ConverseMap[nickname] = converseId;
+    ConverseMap[nickname] = {
+      converseId: converseId,
+      memberId: memberId,
+    };
     // var ret = []
     // ret.push(<Route path="/:monicaItemId"  element={<MonicaConverse  converseId={converseId}/>}/>)
     if (nickname == 'GPT-3.5') {
@@ -447,7 +530,7 @@ export const Monica: React.FC = React.memo(() => {
   //   const gpt4 = await registerTemporaryAccount("","GPT-4.0")
   // },[])
   useEffect(() => {
-    if (ConverseMap['GPT-3.5']) {
+    if (ConverseMap['GPT-3.5'] && ConverseMap['GPT-3.5']['converseId']) {
       navigate(`/main/monica/GPT-3.5`);
     }
   }, [ais]);
@@ -467,8 +550,46 @@ const InboxNoSelect: React.FC = React.memo(() => {
   const { monicaItemId } = useParams();
   console.log('[InboxNoSelect]', monicaItemId, ConverseMap);
 
-  const converseId = ConverseMap[monicaItemId];
+  const converseId: any = ConverseMap[monicaItemId]
+    ? ConverseMap[monicaItemId]['converseId']
+    : null;
   console.log('[InboxNoSelect] converseId', converseId);
-  return <MonicaConverse converseId={converseId} />;
+  async function sendMessageCallback(msg) {
+    console.log('[sendMessageCallback]');
+    try {
+      const { data } = await axios.post('https://yyejoq.laf.dev/chatgpt', {
+        question: msg,
+      });
+      console.log('[chatgpt]', data);
+      // let data={
+      //   answer:"收到的问题是："+msg
+      // }
+      sendMessageAIChatBot(
+        converseId,
+        data.answer,
+        data.answer,
+        { mentions: [] },
+        monicaItemId
+      );
+    } catch (error) {
+      const data = {
+        answer: 'chatGPT接口错误，收到的问题是：' + msg,
+      };
+      sendMessageAIChatBot(
+        converseId,
+        data.answer,
+        data.answer,
+        { mentions: [] },
+        monicaItemId
+      );
+    }
+  }
+  if (!converseId) return null;
+  return (
+    <MonicaConverse
+      converseId={converseId}
+      sendMessageCallback={sendMessageCallback}
+    />
+  );
 });
 InboxNoSelect.displayName = 'InboxNoSelect';

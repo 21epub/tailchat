@@ -40,9 +40,10 @@ ConversePanelMembers.displayName = 'ConversePanelMembers';
 
 interface ConversePanelProps {
   converseId: string;
+  sendMessageCallback: Function;
 }
 export const ConversePanel: React.FC<ConversePanelProps> = React.memo(
-  ({ converseId }) => {
+  ({ converseId, sendMessageCallback }) => {
     const converse = useAppSelector(
       (state) => state.chat.converses[converseId]
     );
@@ -142,6 +143,7 @@ export const ConversePanel: React.FC<ConversePanelProps> = React.memo(
           converseId={converseId}
           converseTitle={converseHeader}
           isGroup={false}
+          sendMessageCallback={sendMessageCallback}
         />
       </CommonPanelWrapper>
     );

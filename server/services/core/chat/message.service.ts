@@ -170,6 +170,7 @@ class MessageService extends TcService {
     }>
   ) {
     const { converseId, groupId, content, plain, meta } = ctx.params;
+    console.log('[sendMessage]', ctx.params);
     const userId = ctx.meta.userId;
     const t = ctx.meta.t;
 

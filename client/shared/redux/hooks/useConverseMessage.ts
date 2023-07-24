@@ -79,9 +79,10 @@ function useHandleSendMessage(context: ConverseContext) {
 interface ConverseContext {
   converseId: string;
   isGroup: boolean;
+  sendMessageCallback: Function;
 }
 export function useConverseMessage(context: ConverseContext) {
-  const { converseId, isGroup } = context;
+  const { converseId, isGroup, sendMessageCallback } = context;
   const converse = useAppSelector<ChatConverseState | undefined>(
     (state) => state.chat.converses[converseId]
   );

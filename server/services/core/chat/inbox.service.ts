@@ -25,6 +25,7 @@ class InboxService extends TcService {
     this.registerEventListener(
       'chat.message.updateMessage',
       async (payload, ctx) => {
+        console.log('[updateMessage]', payload);
         if (
           Array.isArray(payload.meta.mentions) &&
           payload.meta.mentions.length > 0

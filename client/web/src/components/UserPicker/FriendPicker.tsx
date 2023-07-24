@@ -25,7 +25,7 @@ export const FriendPicker: React.FC<FriendPickerProps> = React.memo((props) => {
       .map((f) => f.id)
       .filter((item) => !withoutUserIds.includes(item))
   );
-
+  console.log('[FriendPicker]', friendIds, selectedIds);
   return (
     <UserPicker
       selectedIds={selectedIds}

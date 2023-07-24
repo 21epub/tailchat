@@ -99,7 +99,7 @@ class UserService extends TcService {
       },
     });
     this.registerAction('signUserToken', this.signUserToken, {
-      visibility: 'public',
+      // visibility: 'public',
       params: {
         userId: 'string',
       },
