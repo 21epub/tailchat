@@ -31,10 +31,7 @@ export const MainContent: React.FC = React.memo(() => {
           />
         ))}
 
-      <Route
-        path="/"
-        element={<Navigate to="/main/personal" replace={true} />}
-      />
+      <Route path="/" element={<Navigate to="/main/monica" replace={true} />} />
     </Routes>
   );
 });
