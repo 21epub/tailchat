@@ -76,6 +76,12 @@ class UserService extends TcService {
         email: 'email',
       },
     });
+    this.registerAction('verifyEmail2', this.verifyEmail2, {
+      params: {
+        email: 'email',
+      },
+    });
+
     this.registerAction('verifyEmailWithOTP', this.verifyEmailWithOTP, {
       params: {
         emailOTP: 'string',
@@ -360,6 +366,39 @@ class UserService extends TcService {
     await this.broker.cacher.set(cacheKey, otp, 10 * 60); // 记录该OTP ttl: 10分钟
 
     return true;
+  }
+
+  async verifyEmail2(ctx: TcPureContext<{ email: string }>) {
+    console.log('[verifyEmail2]');
+    const email = ctx.params.email;
+    const t = ctx.meta.t;
+    const userInfo = await ctx.call('user.findUserByEmail', {
+      email: email,
+    });
+
+    // const c = await this.broker.cacher.get(cacheKey);
+    // if (!!c) {
+    //   // 如果有一个忘记密码请求未到期
+    //   throw new Error(t('过于频繁的请求，10 分钟内可以共用同一OTP'));
+    // }
+
+    // const otp = generateRandomNumStr(6); // 产生一次性6位数字密码
+
+    // const html = `
+    // <p>您正在尝试验证 Tailchat 账号的邮箱, 请使用以下 OTP 作为邮箱验证凭证:</p>
+    // <h3>OTP: <strong>${otp}</strong></h3>
+    // <p>该 OTP 将会在 10分钟 后过期</p>
+    // <p style="color: grey;">如果并不是您触发的验证操作，请忽略此电子邮件。</p>`;
+
+    // await ctx.call('mail.sendMail', {
+    //   to: email,
+    //   subject: `Tailchat 邮箱验证: ${otp}`,
+    //   html,
+    // });
+
+    // await this.broker.cacher.set(cacheKey, otp, 10 * 60); // 记录该OTP ttl: 10分钟
+
+    return userInfo;
   }
 
   /**

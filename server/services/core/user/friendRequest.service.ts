@@ -24,12 +24,26 @@ class FriendService extends TcService {
         message: [{ type: 'string', optional: true }],
       },
     });
+
+    this.registerAction('isAdd', this.isAdd, {
+      params: {
+        to: 'string',
+        message: [{ type: 'string', optional: true }],
+      },
+    });
+
     this.registerAction('allRelated', this.allRelated);
     this.registerAction('accept', this.accept, {
       params: {
         requestId: 'string',
       },
     });
+    this.registerAction('acceptOther', this.acceptOther, {
+      params: {
+        requestId: 'string',
+      },
+    });
+
     this.registerAction('deny', this.deny, {
       params: {
         requestId: 'string',
@@ -77,6 +91,45 @@ class FriendService extends TcService {
     this.listcastNotify(ctx, [from, to], 'add', request);
 
     return request;
+  }
+  async isAdd(ctx: TcContext<{ to: string; message?: string }>) {
+    const from = ctx.meta.userId;
+
+    const { to, message } = ctx.params;
+    const ret = {
+      isExist: null,
+      isFriend: null,
+    };
+
+    if (from === to) {
+      throw new Errors.ValidationError('不能添加自己为好友');
+    }
+
+    const exist = await this.adapter.findOne({
+      from,
+      to,
+    });
+    if (exist) {
+      // throw new Errors.MoleculerError('不能发送重复的好友请求');
+      ret.isExist = exist;
+    }
+
+    const isFriend = await ctx.call('friend.checkIsFriend', { targetId: to });
+    if (isFriend) {
+      // throw new Error('对方已经是您的好友, 不能再次添加');
+      ret.isFriend = isFriend;
+    }
+
+    // const doc = await this.adapter.insert({
+    //   from,
+    //   to,
+    //   message,
+    // });
+    // const request = await this.transformDocuments(ctx, {}, doc);
+
+    // this.listcastNotify(ctx, [from, to], 'add', request);
+
+    return ret;
   }
 
   /**
@@ -127,6 +180,34 @@ class FriendService extends TcService {
     );
   }
 
+  async acceptOther(ctx: TcContext<{ requestId: string }>) {
+    const requestId = ctx.params.requestId;
+
+    const request: FriendRequest = await this.adapter.findById(requestId);
+    if (_.isNil(request)) {
+      throw new DataNotFoundError('该好友请求未找到');
+    }
+
+    // if (ctx.meta.userId !== String(request.to)) {
+    //   throw new NoPermissionError();
+    // }
+    console.log('[acceptOther]----------------');
+    await ctx.call('friend.buildFriendRelation', {
+      user1: String(request.from),
+      user2: String(request.to),
+    });
+
+    await this.adapter.removeById(request._id);
+
+    this.listcastNotify(
+      ctx,
+      [String(request.from), String(request.to)],
+      'remove',
+      {
+        requestId,
+      }
+    );
+  }
   /**
    * 拒绝好友请求
    */

@@ -24,6 +24,7 @@ class AckService extends TcService {
       },
     });
     this.registerAction('all', this.allAck);
+    this.registerAction('test', this.test);
   }
 
   /**
@@ -65,6 +66,15 @@ class AckService extends TcService {
     });
 
     return await this.transformDocuments(ctx, {}, list);
+  }
+  async test(ctx: TcContext) {
+    const userId = ctx.meta.userId;
+    return 'test_' + userId;
+    // const list = await this.adapter.model.find({
+    //   userId,
+    // });
+
+    // return await this.transformDocuments(ctx, {}, list);
   }
 }
 
