@@ -28,13 +28,16 @@ export const NavbarNavItem: React.FC<
     >
       <div
         className={clsx(
-          'w-12 h-12 hover:rounded-lg transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden',
+          'w-12 h-12 transition-all duration-300 cursor-pointer flex items-center justify-center overflow-hidden', // hover:rounded-lg
           className,
           {
-            'rounded-1/2': !isActive,
-            'rounded-lg': isActive,
+            // 'rounded-1/2': !isActive,
+            // 'rounded-lg': isActive,
           }
         )}
+        style={{
+          borderRadius: '0.5rem',
+        }}
         onClick={props.onClick}
         data-testid={props['data-testid']}
       >

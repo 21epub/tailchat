@@ -9,6 +9,7 @@ import { MonicaSidebar } from './Sidebar';
 import { GroupPanelRender, GroupPanelRoute } from './Panel';
 import axios from 'axios';
 import { MonicaConverse } from './Converse';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 /*
 http://127.0.0.1:11000/api/openapi/app/setAppBotInfo
@@ -519,7 +520,7 @@ export const Monica: React.FC = React.memo(() => {
       'Wagon000',
       ''
     );
-
+    asyncFun('Stable-Diffusion@163.com', 'Stable-Diffusion', 'Wagon000', '');
     navigate(`/main/monica/GPT-3.5`);
   }, []);
 
@@ -547,6 +548,7 @@ export const Monica: React.FC = React.memo(() => {
 Monica.displayName = 'Monica';
 
 const InboxNoSelect: React.FC = React.memo(() => {
+  const [isShowLoading, setIsShowLoading] = useState(false);
   const { monicaItemId } = useParams();
   console.log('[InboxNoSelect]', monicaItemId, ConverseMap);
 
@@ -555,6 +557,7 @@ const InboxNoSelect: React.FC = React.memo(() => {
     : null;
   console.log('[InboxNoSelect] converseId', converseId);
   async function sendMessageCallback(msg) {
+    setIsShowLoading(true);
     console.log('[sendMessageCallback]');
     try {
       const { data } = await axios.post('https://yyejoq.laf.dev/chatgpt', {
@@ -583,13 +586,36 @@ const InboxNoSelect: React.FC = React.memo(() => {
         monicaItemId
       );
     }
+    setIsShowLoading(false);
   }
   if (!converseId) return null;
   return (
-    <MonicaConverse
-      converseId={converseId}
-      sendMessageCallback={sendMessageCallback}
-    />
+    <>
+      <MonicaConverse
+        converseId={converseId}
+        sendMessageCallback={sendMessageCallback}
+      />
+      {isShowLoading ? (
+        <div
+          style={{
+            display: 'inline-block',
+            position: 'absolute',
+            bottom: '15px',
+            left: '31px',
+            background: ' rgba(75, 85, 99, var(--tw-bg-opacity))',
+
+            right: '16px',
+          }}
+        >
+          <LoadingSpinner />
+        </div>
+      ) : null}
+    </>
   );
 });
 InboxNoSelect.displayName = 'InboxNoSelect';
+
+/**
+ * LoadingSpinner
+ *
+ */
