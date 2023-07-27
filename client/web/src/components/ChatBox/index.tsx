@@ -71,7 +71,8 @@ const ChatBoxInner: React.FC<ChatBoxProps> = React.memo((props) => {
             plain: getMessageTextDecorators().serialize(content),
             meta,
           });
-          if (sendMessageCallback) sendMessageCallback(content);
+          if (sendMessageCallback)
+            sendMessageCallback(getMessageTextDecorators().serialize(content));
         }}
       />
     </div>

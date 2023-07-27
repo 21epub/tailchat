@@ -29,6 +29,7 @@
     "@types/jest": "^27.0.3",
     "@types/node": "^15.12.5",
     "commitlint": "^12.1.4",
+    "@huggingface/inference": "^2.6.1",
     "dayjs": "^1.10.6",
     "esbuild": "^0.12.25",
     "fs-extra": "^10.0.0",

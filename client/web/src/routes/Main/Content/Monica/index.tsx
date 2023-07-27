@@ -2,7 +2,7 @@ import { Problem } from '@/components/Problem';
 import React, { useEffect, useState } from 'react';
 import { Route, Routes, useParams, Navigate, useNavigate } from 'react-router';
 import { useUserSessionPreference } from '@/hooks/useUserPreference';
-import { t } from 'tailchat-shared';
+import { t, uploadFile } from 'tailchat-shared';
 import { PageContent } from '../PageContent';
 import { InboxContent } from './Content';
 import { MonicaSidebar } from './Sidebar';
@@ -10,6 +10,11 @@ import { GroupPanelRender, GroupPanelRoute } from './Panel';
 import axios from 'axios';
 import { MonicaConverse } from './Converse';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { HfInference } from '@huggingface/inference';
+import { dataUrlToFile, getMessageTextDecorators } from '@/plugin/common';
+
+const HF_ACCESS_TOKEN = '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';
+const inference = new HfInference(HF_ACCESS_TOKEN);
 
 /*
 http://127.0.0.1:11000/api/openapi/app/setAppBotInfo
@@ -547,6 +552,67 @@ export const Monica: React.FC = React.memo(() => {
 });
 Monica.displayName = 'Monica';
 
+async function generateImage(val: any) {
+  // you can generate the code, inspect it and then run it
+  // const code = await agent.generateCode(
+  //   "Draw a picture of a cat wearing a top hat. Then caption the picture and read it out loud."
+  // );
+  // console.log(code);
+  // const messages1 = await agent.evaluateCode(code);
+  // console.log(messages1); // contains the data
+
+  // or you can run the code directly, however you can't check that the code is safe to execute this way, use at your own risk.
+  // const messages = await agent.run(
+  //   "Draw a picture of a cat wearing a top hat. Then caption the picture and read it out loud."
+  // );
+  const ret = await inference.textToImage({
+    model: 'stabilityai/stable-diffusion-2',
+    inputs: val || '一张戴着大礼帽的猫的照片。然后给图片配上文字，大声读出来。',
+    parameters: {
+      negative_prompt: 'blurry',
+    },
+  });
+  console.log(ret);
+
+  const blob = new Blob([ret], {
+    type: ret.type,
+  });
+  return blob;
+  // const objectUrl = URL.createObjectURL(blob);
+  // // const tmpLink = document.createElement('a');
+  // // tmpLink.href = objectUrl;
+  // // tmpLink.download = 'fileName.jpeg';
+
+  // // document.body.appendChild(tmpLink); // 如果不需要显示下载链接可以不需要这行代码
+  // // tmpLink.click();
+  // URL.revokeObjectURL(objectUrl);
+  // console.log(blob, objectUrl);
+  // return  window.URL.createObjectURL(blob)
+  // createMiniQrcode(blob);
+  // await createRepo({
+  //   repo: "wagon123/nlp-model", // or {type: "model", name: "my-user/nlp-test"},
+  //   credentials: { accessToken: HF_ACCESS_TOKEN },
+  // });
+
+  // const ret2 = await uploadFile({
+  //   repo: "wagon123/nlp-model",
+  //   credentials: { accessToken: HF_ACCESS_TOKEN },
+  //   // Can work with native File in browsers
+  //   file: {
+  //     path: "pytorch_model.bin",
+  //     content: new Blob(ret),
+  //   },
+  // });
+  // console.log(ret2);
+}
+
+function blobToDataURI(blob, callback) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    callback(e.target.result);
+  };
+  reader.readAsDataURL(blob);
+}
 const InboxNoSelect: React.FC = React.memo(() => {
   const [isShowLoading, setIsShowLoading] = useState(false);
   const { monicaItemId } = useParams();
@@ -558,30 +624,54 @@ const InboxNoSelect: React.FC = React.memo(() => {
   console.log('[InboxNoSelect] converseId', converseId);
   async function sendMessageCallback(msg) {
     setIsShowLoading(true);
-    console.log('[sendMessageCallback]');
+    console.log('[sendMessageCallback]', monicaItemId);
+
     try {
-      const { data } = await axios.post('https://yyejoq.laf.dev/chatgpt', {
-        question: msg,
-      });
-      console.log('[chatgpt]', data);
-      // let data={
-      //   answer:"收到的问题是："+msg
-      // }
-      sendMessageAIChatBot(
-        converseId,
-        data.answer,
-        data.answer,
-        { mentions: [] },
-        monicaItemId
-      );
+      if (monicaItemId == 'Stable-Diffusion') {
+        const imgURL = await generateImage(msg);
+
+        const dataUrl = imgURL;
+        blobToDataURI(dataUrl, async function (dataUrl) {
+          const file = dataUrlToFile(dataUrl);
+          const res = await uploadFile(file);
+          const answer = getMessageTextDecorators().image(res.url, {
+            width: 400,
+            height: 400,
+          });
+          console.log('[getMessageTextDecorators]', answer);
+
+          sendMessageAIChatBot(
+            converseId,
+            answer,
+            answer,
+            { mentions: [] },
+            monicaItemId
+          );
+        });
+      } else {
+        const { data } = await axios.post('https://yyejoq.laf.dev/chatgpt', {
+          question: msg,
+        });
+        console.log('[chatgpt]', data);
+        // let data={
+        //   answer:"收到的问题是："+msg
+        // }
+        sendMessageAIChatBot(
+          converseId,
+          '[md]' + data.answer + '[/md]',
+          '[md]' + data.answer + '[/md]',
+          { mentions: [] },
+          monicaItemId
+        );
+      }
     } catch (error) {
       const data = {
         answer: 'chatGPT接口错误，收到的问题是：' + msg,
       };
       sendMessageAIChatBot(
         converseId,
-        data.answer,
-        data.answer,
+        '[md]' + data.answer + '[/md]',
+        '[md]' + data.answer + '[/md]',
         { mentions: [] },
         monicaItemId
       );
