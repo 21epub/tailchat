@@ -19,6 +19,8 @@ spec:
           image: 21epub-registry-vpc.cn-hangzhou.cr.aliyuncs.com/21epub/tailchat:latest
           imagePullPolicy: Always
           env:
+            - name: DATE
+              value: ${DATETIME}          
             - name: SERVICEDIR
               value: services,plugins
             - name: TRANSPORTER
