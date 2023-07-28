@@ -84,6 +84,20 @@ export const builtinPlugins: PluginManifest[] = _compact([
     'description.zh-CN': '为Tailchat提供方便的接入外部账户系统的功能',
     requireRestart: true,
   },
+  {
+    label: 'Planka',
+    'label.zh-CN': '项目管理',
+    name: 'com.msgbyte.planka',
+    url: '/plugins/com.msgbyte.planka/index.js',
+    icon: '/plugins/com.msgbyte.planka/assets/icon.png',
+    documentUrl: '/plugins/com.msgbyte.planka/README.md',
+    version: '0.0.0',
+    author: 'msgbyte',
+    description: 'Planka —— Free open source kanban board for workgroups',
+    'description.zh-CN': 'Planka —— 开源看板工具',
+    requireRestart: false,
+  },
+
   // isOffical
   isOffical && {
     label: 'Posthog',

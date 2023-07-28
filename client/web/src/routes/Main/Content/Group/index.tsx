@@ -8,25 +8,63 @@ import { PageContent } from '../PageContent';
 import { GroupPanelRender, GroupPanelRoute } from './Panel';
 import { GroupPanelRedirect } from './PanelRedirect';
 import { Sidebar } from './Sidebar';
+import { pluginCustomPanel } from '@/plugin/common';
+import { ErrorBoundary } from '@/plugin/component';
 
 export const Group: React.FC = React.memo(() => {
+  const allParams = useParams();
   const { groupId = '' } = useParams<{
     groupId: string;
   }>();
   const groupInfo = useGroupInfo(groupId);
-
-  if (!groupInfo) {
-    return <Problem text={t('群组未找到')} />;
-  }
-
-  const pinnedPanelId = groupInfo.pinnedPanelId;
-
+  console.log('[Group]', allParams);
   const routeMatch = (
     <Routes>
       <Route path="/:panelId" element={<GroupPanelRoute />} />
       <Route path="/" element={<GroupPanelRedirect />} />
     </Routes>
   );
+  if (groupId.indexOf('com.msgbyte') != -1) {
+    let ret = null;
+    {
+      pluginCustomPanel
+        .filter((p) => p.position === 'personal')
+        .map((p) => {
+          console.log('[Group]p:', p);
+          if (p.name.indexOf(groupId.trim()) != -1) {
+            ret = (
+              <PageContent data-tc-role="content-group" sidebar={<Sidebar />}>
+                <SplitPanel className="flex-auto w-full">
+                  <div>{routeMatch}</div>
+                  <div>
+                    <ErrorBoundary>
+                      {React.createElement(p.render)}
+                    </ErrorBoundary>
+                  </div>
+                </SplitPanel>
+              </PageContent>
+            );
+
+            return false;
+          }
+          // <Route
+          //   key={p.name}
+          //   path={`/custom/${p.name}`}
+          //   element={
+          //     <ErrorBoundary>{React.createElement(p.render)}</ErrorBoundary>
+          //   }
+          // />
+        });
+    }
+
+    return ret;
+  }
+
+  if (!groupInfo) {
+    return <Problem text={t('群组未找到')} />;
+  }
+
+  const pinnedPanelId = groupInfo.pinnedPanelId;
 
   return (
     <GroupIdContextProvider value={groupId}>
