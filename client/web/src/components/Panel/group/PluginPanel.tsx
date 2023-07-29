@@ -1,6 +1,8 @@
 import { Problem } from '@/components/Problem';
+import { pluginCustomPanel } from '@/plugin/common';
 import { findPluginPanelInfoByName } from '@/utils/plugin-helper';
 import { Alert } from 'antd';
+import ErrorBoundary from 'antd/lib/alert/ErrorBoundary';
 import React, { useMemo } from 'react';
 import { isValidStr, t, useGroupPanelInfo } from 'tailchat-shared';
 
@@ -16,6 +18,31 @@ export const GroupPluginPanel: React.FC<GroupPluginPanelProps> = React.memo(
   (props) => {
     const panelInfo = useGroupPanelInfo(props.groupId, props.panelId);
 
+    let isGroupPlugin = false;
+    if (panelInfo === null && props.panelId.indexOf('com.msgbyte.') != -1) {
+      isGroupPlugin = true;
+    }
+    if (isGroupPlugin) {
+      let ret = null;
+      pluginCustomPanel
+        .filter((p) => p.position === 'group')
+        .map((p) => {
+          console.log(
+            '[Group]pluginCustomPanel',
+            p,
+            p.name,
+            props.panelId,
+            p.name == props.panelId
+          );
+          if (p.name == props.panelId) {
+            ret = (
+              <ErrorBoundary>{React.createElement(p.render)}</ErrorBoundary>
+            );
+            return false;
+          }
+        });
+      return ret;
+    }
     if (!panelInfo) {
       return (
         <Alert className="w-full text-center" message={t('无法获取面板信息')} />

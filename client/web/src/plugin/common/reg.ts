@@ -33,6 +33,7 @@ export interface PluginCustomPanel {
     | 'groupdetail'
     | 'navbar-more'
     | 'navbar-group'
+    | 'group'
     | 'navbar-personal';
 
   /**

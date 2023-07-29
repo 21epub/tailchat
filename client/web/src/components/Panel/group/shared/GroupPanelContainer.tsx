@@ -22,8 +22,11 @@ export const GroupPanelContainer: React.FC<GroupPanelWithHeader> = React.memo(
     const panelInfo = useGroupPanelInfo(groupId, panelId);
     const { hasOpenedPanel, openPanelWindow, closePanelWindow } =
       usePanelWindow(`/panel/group/${groupId}/${panelId}`);
-
-    if (_isNil(panelInfo)) {
+    let isGroupPlugin = false;
+    if (panelInfo === null && props.panelId.indexOf('com.msgbyte.') != -1) {
+      isGroupPlugin = true;
+    }
+    if (!isGroupPlugin && _isNil(panelInfo)) {
       return null;
     }
 
@@ -33,7 +36,7 @@ export const GroupPanelContainer: React.FC<GroupPanelWithHeader> = React.memo(
 
     return (
       <CommonPanelWrapper
-        header={panelInfo.name}
+        header={isGroupPlugin ? '' : panelInfo.name}
         actions={(ctx) => [
           ...(props.prefixActions?.(ctx) ?? []),
           <IconBtn

@@ -208,6 +208,7 @@ declare module '@capital/common' {
       | 'groupdetail'
       | 'navbar-more'
       | 'navbar-group'
+      | 'group'
       | 'navbar-personal';
     icon: string;
     name: string;

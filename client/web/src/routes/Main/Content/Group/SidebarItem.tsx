@@ -30,7 +30,7 @@ export const SidebarItem: React.FC<{
   panel: GroupPanel;
 }> = React.memo((props) => {
   const { groupId, panel } = props;
-  const panelId = panel.id;
+  const panelId = panel.id || panel.name;
   const { hasOpenedPanel, openPanelWindow } = usePanelWindow(
     `/panel/group/${groupId}/${panelId}`
   );
@@ -40,6 +40,10 @@ export const SidebarItem: React.FC<{
   const extraMenuItems = useExtraMenuItems(panel);
   const extraBadge = useGroupPanelExtraBadge(groupId, panelId);
   const { checkIsMuted, toggleMute } = useUserNotifyMute();
+  let isGroupPlugin = false;
+  if (panel.name && panel.position == 'group') {
+    isGroupPlugin = true;
+  }
 
   if (!groupInfo) {
     return <LoadingSpinner />;
@@ -108,7 +112,13 @@ export const SidebarItem: React.FC<{
     ]),
   };
 
-  const icon = isPinned ? <Icon icon="mdi:pin" /> : <Icon icon="mdi:pound" />;
+  const icon = isGroupPlugin ? (
+    <Icon icon={panel.icon} />
+  ) : isPinned ? (
+    <Icon icon="mdi:pin" />
+  ) : (
+    <Icon icon="mdi:pound" />
+  );
 
   return (
     <Dropdown menu={menu} trigger={['contextMenu']}>
@@ -117,7 +127,7 @@ export const SidebarItem: React.FC<{
           <GroupAckPanelItem icon={icon} groupId={groupId} panel={panel} />
         ) : (
           <GroupPanelItem
-            name={panel.name}
+            name={isGroupPlugin ? panel.label : panel.name}
             icon={icon}
             to={`/main/group/${groupId}/${panelId}`}
             extraBadge={extraBadge}

@@ -37,7 +37,7 @@ const PanelRoute: React.FC = React.memo(() => {
             path="/group/:groupId/:panelId"
             element={<GroupPanelRoute />}
           />
-          <Route path="/group/main/:groupId/*" element={<Group />} />
+          <Route path="/group/main/:groupId/:panelId" element={<Group />} />
 
           <Route path="/*" element={t('未知的面板')} />
         </Routes>

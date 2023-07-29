@@ -67,7 +67,7 @@ export const PersonalSidebar: React.FC = React.memo(() => {
             />
           ))}
 
-        <SidebarSection
+        {/* <SidebarSection
           action={
             <DevContainer>
               <Icon
@@ -82,7 +82,7 @@ export const PersonalSidebar: React.FC = React.memo(() => {
 
         {converseList.map((converse) => {
           return <SidebarDMItem key={converse._id} converse={converse} />;
-        })}
+        })} */}
       </div>
     </CommonSidebarWrapper>
   );

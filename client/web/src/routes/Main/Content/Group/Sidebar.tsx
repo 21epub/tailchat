@@ -15,7 +15,7 @@ import { SidebarItem } from './SidebarItem';
 import { Icon } from 'tailchat-design';
 import { openModal } from '@/components/Modal';
 import { CreateDMConverse } from '@/components/modals/CreateDMConverse';
-import { SidebarDMItem } from '../Personal/SidebarDMItem';
+import { SidebarDMItem } from './SidebarDMItem';
 import { pluginCustomPanel } from '@/plugin/common';
 import { SidebarItem as SidebarItemPerson } from '../SidebarItem';
 const SidebarSection: React.FC<
@@ -50,17 +50,20 @@ export const Sidebar: React.FC = React.memo(() => {
       <div className="p-2 space-y-1 overflow-auto">
         {/* 插件自定义面板 */}
         {pluginCustomPanel
-          .filter((p) => p.position === 'personal')
-          .map((p) => (
-            <SidebarItemPerson
-              key={p.name}
-              name={p.label}
-              icon={<Icon icon={p.icon} />}
-              // to={`/main/personal/custom/${p.name}`}
+          .filter((p) => p.position === 'group')
+          .map((p) => {
+            // <SidebarItemPerson
+            //   key={p.name}
+            //   name={p.label}
+            //   icon={<Icon icon={p.icon} />}
+            //   // to={`/main/personal/custom/${p.name}`}
 
-              to={`/main/group/${groupId}/${p.name}`}
-            />
-          ))}
+            //   to={`/main/group/${groupId}/${p.name}`}
+            // />
+            console.log('[Group]pluginCustomPanel', p);
+
+            return <SidebarItem key={p.name} groupId={groupId} panel={p} />;
+          })}
 
         {groupPanels
           .filter((panel) => !isValidStr(panel.parentId))
@@ -92,7 +95,13 @@ export const Sidebar: React.FC = React.memo(() => {
         </SidebarSection>
 
         {converseList.map((converse) => {
-          return <SidebarDMItem key={converse._id} converse={converse} />;
+          return (
+            <SidebarDMItem
+              key={converse._id}
+              converse={converse}
+              groupId={groupId}
+            />
+          );
         })}
       </div>
     </CommonSidebarWrapper>

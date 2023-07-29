@@ -1,4 +1,7 @@
 import { GroupPluginPanel } from '@/components/Panel/group/PluginPanel';
+
+import { GroupPluginPanel2 } from '@/components/Panel/group/GroupPluginPanel';
+
 import { TextPanel } from '@/components/Panel/group/TextPanel';
 import { Problem } from '@/components/Problem';
 import { GroupPanelContext } from '@/context/GroupPanelContext';
@@ -13,6 +16,8 @@ import {
   useGroupPanelInfo,
 } from 'tailchat-shared';
 import { useGroupPanelParams } from './utils';
+
+import { ConversePanel } from '@/components/Panel/group/ConversePanel';
 
 /**
  * 记录下最后访问的面板id
@@ -38,7 +43,32 @@ export const GroupPanelRender: React.FC<GroupPanelRenderProps> = React.memo(
   (props) => {
     const { groupId, panelId } = props;
     const groupInfo = useGroupInfo(groupId);
-    const panelInfo = useGroupPanelInfo(groupId, panelId);
+    let panelInfo: any = useGroupPanelInfo(groupId, panelId);
+    console.log('[Group]panelInfo', panelInfo);
+
+    let isConverse = false;
+
+    if (panelInfo === null && panelId.indexOf('converse.') != -1) {
+      isConverse = true;
+    }
+    if (isConverse) {
+      panelInfo = {
+        type: 'groupPluginConverse',
+        id: panelId,
+      };
+    }
+
+    let isGroupPlugin = false;
+    if (panelInfo === null && panelId.indexOf('com.msgbyte.') != -1) {
+      isGroupPlugin = true;
+    }
+    if (isGroupPlugin) {
+      panelInfo = {
+        type: 'groupPlugin2',
+        id: panelId,
+      };
+    }
+
     const groupPanelContextValue = useMemo(
       () => ({
         groupId,
@@ -48,7 +78,7 @@ export const GroupPanelRender: React.FC<GroupPanelRenderProps> = React.memo(
     );
     useRecordGroupPanel(groupId, panelId);
 
-    if (groupInfo === null) {
+    if (!isGroupPlugin && !isConverse && groupInfo === null) {
       return (
         <Alert
           className="w-full text-center"
@@ -62,6 +92,25 @@ export const GroupPanelRender: React.FC<GroupPanelRenderProps> = React.memo(
       return <Problem text={t('面板不存在')} />;
     }
 
+    if (panelInfo.type === 'groupPluginConverse') {
+      return (
+        <GroupInfoContextProvider groupInfo={groupInfo}>
+          <GroupPanelContext.Provider value={groupPanelContextValue}>
+            <ConversePanel converseId={panelId.replace('converse.', '')} />
+          </GroupPanelContext.Provider>
+        </GroupInfoContextProvider>
+      );
+    }
+    if (panelInfo.type === 'groupPlugin2') {
+      return (
+        <GroupInfoContextProvider groupInfo={groupInfo}>
+          <GroupPanelContext.Provider value={groupPanelContextValue}>
+            <GroupPluginPanel2 groupId={groupId} panelId={panelInfo.id} />
+          </GroupPanelContext.Provider>
+        </GroupInfoContextProvider>
+      );
+    }
+
     if (panelInfo.type === GroupPanelType.TEXT) {
       return (
         <GroupInfoContextProvider groupInfo={groupInfo}>
@@ -73,9 +122,9 @@ export const GroupPanelRender: React.FC<GroupPanelRenderProps> = React.memo(
     }
     if (panelInfo.type === GroupPanelType.PLUGIN) {
       return (
-        <GroupPanelContext.Provider value={groupPanelContextValue}>
-          <GroupPluginPanel groupId={groupId} panelId={panelInfo.id} />
-        </GroupPanelContext.Provider>
+        <GroupPanelContext.Provider
+          value={groupPanelContextValue}
+        ></GroupPanelContext.Provider>
       );
     }
 

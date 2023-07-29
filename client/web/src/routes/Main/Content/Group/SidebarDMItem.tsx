@@ -13,10 +13,12 @@ import _without from 'lodash/without';
 
 interface SidebarDMItemProps {
   converse: ChatConverseState;
+  groupId: string;
 }
 export const SidebarDMItem: React.FC<SidebarDMItemProps> = React.memo(
   (props) => {
     const converse = props.converse;
+    const groupId = props.groupId;
     const name = useDMConverseName(converse);
     const userId = useUserId();
     const [hasUnread] = useUnread([converse._id]);
@@ -48,7 +50,7 @@ export const SidebarDMItem: React.FC<SidebarDMItemProps> = React.memo(
         name={name}
         // action={<Icon icon="mdi:close" />} // TODO
         icon={icon}
-        to={`/main/group/converse/${converse._id}`}
+        to={`/main/group/${groupId}/converse.${converse._id}`}
         badge={hasUnread}
       />
     );

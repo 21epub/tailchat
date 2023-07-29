@@ -13,59 +13,33 @@ import { ErrorBoundary } from '@/plugin/component';
 
 export const Group: React.FC = React.memo(() => {
   const allParams = useParams();
-  const { groupId = '' } = useParams<{
-    groupId: string;
-  }>();
+  const { groupId: groupId, '*': extId } = useParams();
+
+  console.log('[Group]allParams', allParams, groupId, extId);
   const groupInfo = useGroupInfo(groupId);
-  console.log('[Group]', allParams);
+
   const routeMatch = (
     <Routes>
       <Route path="/:panelId" element={<GroupPanelRoute />} />
       <Route path="/" element={<GroupPanelRedirect />} />
     </Routes>
   );
-  if (groupId.indexOf('com.msgbyte') != -1) {
-    let ret = null;
-    {
-      pluginCustomPanel
-        .filter((p) => p.position === 'personal')
-        .map((p) => {
-          console.log('[Group]p:', p);
-          if (p.name.indexOf(groupId.trim()) != -1) {
-            ret = (
-              <PageContent data-tc-role="content-group" sidebar={<Sidebar />}>
-                <SplitPanel className="flex-auto w-full">
-                  <div>{routeMatch}</div>
-                  <div>
-                    <ErrorBoundary>
-                      {React.createElement(p.render)}
-                    </ErrorBoundary>
-                  </div>
-                </SplitPanel>
-              </PageContent>
-            );
-
-            return false;
-          }
-          // <Route
-          //   key={p.name}
-          //   path={`/custom/${p.name}`}
-          //   element={
-          //     <ErrorBoundary>{React.createElement(p.render)}</ErrorBoundary>
-          //   }
-          // />
-        });
-    }
-
-    return ret;
+  let isConverse = false;
+  if (groupId == 'converse') {
+    isConverse = true;
   }
 
-  if (!groupInfo) {
+  if (!isConverse && !groupInfo) {
     return <Problem text={t('群组未找到')} />;
   }
 
-  const pinnedPanelId = groupInfo.pinnedPanelId;
-
+  const pinnedPanelId = isConverse ? extId : groupInfo.pinnedPanelId;
+  console.log(
+    '[Group]isValidStr',
+    allParams,
+    groupInfo,
+    isValidStr(pinnedPanelId)
+  );
   return (
     <GroupIdContextProvider value={groupId}>
       <PageContent data-tc-role="content-group" sidebar={<Sidebar />}>
@@ -73,7 +47,7 @@ export const Group: React.FC = React.memo(() => {
           <SplitPanel className="flex-auto w-full">
             <div>{routeMatch}</div>
             <div>
-              <GroupPanelRender groupId={groupId} panelId={pinnedPanelId} />
+              <GroupPanelRender groupId={groupId} panelId={extId} />
             </div>
           </SplitPanel>
         ) : (

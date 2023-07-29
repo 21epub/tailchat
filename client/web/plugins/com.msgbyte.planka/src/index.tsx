@@ -6,8 +6,8 @@ import { Translate } from './translate';
 const PLUGIN_NAME = 'com.msgbyte.planka';
 
 regCustomPanel({
-  name: `${PLUGIN_NAME}/personPanel`,
-  position: 'personal',
+  name: `${PLUGIN_NAME}`,
+  position: 'group',
   label: Translate.panelName,
   icon: 'mdi:radio-tower',
   render: () => (
