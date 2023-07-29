@@ -28,3 +28,11 @@ spec:
             name: tailchat-admin-service
             port:
               number: 3000        
+      - path: /es
+        pathType: Prefix
+        backend:
+          service:
+            name: elasticsearch.comac
+            port:
+              number: 9200
+              
