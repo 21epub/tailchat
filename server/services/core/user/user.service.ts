@@ -264,6 +264,42 @@ class UserService extends TcService {
       '/forgetPassword',
       '/resetPassword',
     ]);
+    this.registerAction('getAllUsers', this.getAllUsers);
+  }
+
+  /**
+   * 获取所有好友
+   */
+  async getAllUsers(ctx: TcContext<{}>) {
+    // const userId = ctx.meta.userId;
+
+    // const users = await userModel.find(
+    //   {
+    //     // false 或 null(正式用户或者老的用户)
+    //     temporary: {
+    //       $ne: true,
+    //     },
+    //   },
+    //   {
+    //     _id: 1,
+    //   }
+    // );
+
+    // userIds = users.map((u) => u._id);
+
+    const list = await this.adapter.find({
+      query: {
+        temporary: false,
+      },
+    });
+
+    const records: any = await this.transformDocuments(ctx, {}, list);
+    // const res = records.map((r) => ({
+    //   id: r.to,
+    //   nickname: r.nickname,
+    // }));
+
+    return records;
   }
 
   /**

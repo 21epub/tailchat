@@ -167,6 +167,31 @@ const hostname = location.hostname;
 if (hostname == '127.0.0.1' || hostname == 'localhost') {
   apiURL = apiURL.replace('11011', '11000');
 }
+
+async function getAllUser() {
+  const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
+
+  console.log('[getAllUser]token', token);
+  const res: any = await axios
+    .post(
+      `//` + apiURL + `/api/user/getAllUsers`,
+      {},
+      {
+        headers: {
+          'x-token': JSON.parse(token).rawData,
+        },
+      }
+    )
+    .then(function (response) {
+      console.log('[getAllUser]1', response);
+      return response;
+    });
+
+  // .json<{ data: { token: string } }>();
+
+  return res;
+}
+
 const tokenMaps = {};
 async function signUserTokenAIChatBot(userId: String): Promise<string> {
   const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
@@ -307,6 +332,34 @@ async function searchAIChatBot(uniqueName: string): Promise<string> {
   // .json<{ data: { token: string } }>();
 
   return res;
+}
+
+async function registerUser(
+  email_arg: string,
+  nickname_arg: string,
+  password_arg: string,
+  emailOTP_arg: string
+): Promise<string> {
+  const token = localStorage.getItem('jsonwebtoken') || '{rawData:""}';
+
+  const userByEmail = await findUserByEmail(email_arg);
+  const email = userByEmail.data;
+  console.log('[email]', email);
+  let gpt35Reg = null;
+  if (!email.data) {
+    const gpt35Reg_t = await registerAIChatBot(
+      email_arg,
+      nickname_arg,
+      password_arg,
+      emailOTP_arg
+    );
+    console.log('[gpt35Reg]', gpt35Reg_t);
+    gpt35Reg = gpt35Reg_t.data.data;
+  } else {
+    gpt35Reg = email.data;
+  }
+
+  return gpt35Reg;
 }
 
 async function registerAIChatBot(
@@ -526,6 +579,7 @@ export const Monica: React.FC = React.memo(() => {
       ''
     );
     asyncFun('Stable-Diffusion@163.com', 'Stable-Diffusion', 'Wagon000', '');
+    getAllUser();
     navigate(`/main/monica/GPT-3.5`);
   }, []);
 
