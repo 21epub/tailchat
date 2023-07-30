@@ -6,6 +6,7 @@ import { Inbox } from './Inbox';
 import { pluginCustomPanel } from '@/plugin/common';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Monica } from './Monica';
+import { Plugins } from './Plugins';
 
 export const MainContent: React.FC = React.memo(() => {
   return (
@@ -13,6 +14,8 @@ export const MainContent: React.FC = React.memo(() => {
       <Route path="/monica/*" element={<Monica />} />
       <Route path="/personal/*" element={<Personal />} />
       <Route path="/inbox/*" element={<Inbox />} />
+      <Route path="/plugins/*" element={<Plugins />} />
+
       <Route path="/group/:groupId/*" element={<Group />} />
 
       {pluginCustomPanel

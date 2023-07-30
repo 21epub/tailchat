@@ -17,7 +17,7 @@ export const MonicaNav: React.FC = React.memo(() => {
   return (
     <div data-tc-role="navbar-personal">
       <NavbarNavItem
-        name={t('AIChatBot')}
+        name={t('AI工具集')}
         to={'/main/monica'}
         showPill={true}
         className="bg-gray-700"

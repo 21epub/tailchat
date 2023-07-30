@@ -11,6 +11,7 @@ import { ReactQueryDevBtn } from './ReactQueryDevBtn';
 import { pluginCustomPanel } from '@/plugin/common';
 import { NavbarCustomNavItem } from './CustomNavItem';
 import { My } from './My';
+import { Plugins } from './Plugins';
 
 /**
  * 导航栏组件
@@ -31,9 +32,10 @@ export const Navbar: React.FC = React.memo(() => {
         <div className="space-y-2">
           <My />
           <MonicaNav />
-          <PersonalNav />
+          {/* <PersonalNav /> */}
+          <Plugins />
 
-          <InboxNav />
+          {/* <InboxNav /> */}
 
           {pluginCustomPanel
             .filter((p) => p.position === 'navbar-personal')
