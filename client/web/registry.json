@@ -119,6 +119,20 @@
     "requireRestart": false
   },  
   {
+    "label": "ServiceNotify",
+    "label.zh-CN": "服务通知",
+    "name": "com.msgbyte.servicenotify",
+    "url": "/plugins/com.msgbyte.servicenotify/index.js",
+    "icon": "/plugins/com.msgbyte.servicenotify/assets/icon.png",
+    "documentUrl": "/plugins/com.msgbyte.servicenotify/README.md",
+    "version": "0.0.0",
+    "author": "msgbyte",
+    "description": "ServiceNotify —— Notification aggregation service",
+    "description.zh-CN": "ServiceNotify —— 通知聚合服务",
+    "requireRestart": false
+  },
+  
+  {
     "label": "Genshin Theme",
     "label.zh-CN": "原神主题",
     "name": "com.msgbyte.theme.genshin",

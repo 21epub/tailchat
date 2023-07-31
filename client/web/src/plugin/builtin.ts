@@ -97,6 +97,19 @@ export const builtinPlugins: PluginManifest[] = _compact([
     'description.zh-CN': 'Planka —— 开源看板工具',
     requireRestart: false,
   },
+  {
+    label: 'ServiceNotify',
+    'label.zh-CN': '服务通知',
+    name: 'com.msgbyte.servicenotify',
+    url: '/plugins/com.msgbyte.servicenotify/index.js',
+    icon: '/plugins/com.msgbyte.servicenotify/assets/icon.png',
+    documentUrl: '/plugins/com.msgbyte.servicenotify/README.md',
+    version: '0.0.0',
+    author: 'msgbyte',
+    description: 'ServiceNotify —— Notification aggregation service',
+    'description.zh-CN': 'ServiceNotify —— 通知聚合服务',
+    requireRestart: false,
+  },
 
   // isOffical
   isOffical && {
