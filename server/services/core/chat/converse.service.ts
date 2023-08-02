@@ -32,6 +32,14 @@ class ConverseService extends TcService {
         memberIds: { type: 'array', items: 'string' },
       },
     });
+    this.registerAction('createDMConverseSelf', this.createDMConverseSelf, {
+      params: {
+        /**
+         * 创建私人会话的参与者ID列表
+         */
+        memberIds: { type: 'array', items: 'string' },
+      },
+    });
     this.registerAction(
       'appendDMConverseMembers',
       this.appendDMConverseMembers,
@@ -119,7 +127,75 @@ class ConverseService extends TcService {
 
     return await this.transformDocuments(ctx, {}, converse);
   }
+  async createDMConverseSelf(ctx: TcContext<{ memberIds: string[] }>) {
+    const userId = ctx.meta.userId;
+    const memberIds = ctx.params.memberIds;
 
+    const participantList = _.uniq([...memberIds]);
+
+    let converse = await this.adapter.model.findConverseWithMembers(
+      participantList
+    );
+    if (converse === null) {
+      // 创建新的会话
+      converse = await this.adapter.insert({
+        type: 'DM',
+        members: participantList.map((id) => new Types.ObjectId(id)),
+      });
+    }
+
+    const roomId = String(converse._id);
+    await Promise.all(
+      participantList.map((memberId) =>
+        call(ctx).joinSocketIORoom([roomId], memberId)
+      )
+    );
+
+    // 广播更新消息
+    await this.roomcastNotify(
+      ctx,
+      roomId,
+      'updateDMConverse',
+      converse.toJSON()
+    );
+
+    // 更新dmlist 异步处理
+    Promise.all(
+      participantList.map(async (memberId) => {
+        try {
+          await ctx.call(
+            'user.dmlist.addConverse',
+            { converseId: roomId },
+            {
+              meta: {
+                userId: memberId,
+              },
+            }
+          );
+        } catch (e) {
+          this.logger.error(e);
+        }
+      })
+    );
+
+    if (participantList.length > 2) {
+      // 如果创建的是一个多人会话(非双人), 发送系统消息
+      await Promise.all(
+        _.without(participantList, userId).map<Promise<UserStruct>>(
+          (memberId) => ctx.call('user.getUserInfo', { userId: memberId })
+        )
+      ).then((infoList) => {
+        return call(ctx).sendSystemMessage(
+          `${ctx.meta.user.nickname} 邀请 ${infoList
+            .map((info) => info.nickname)
+            .join(', ')} 加入会话`,
+          roomId
+        );
+      });
+    }
+
+    return await this.transformDocuments(ctx, {}, converse);
+  }
   /**
    * 在多人会话中添加成员
    */

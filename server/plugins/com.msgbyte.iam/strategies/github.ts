@@ -3,14 +3,15 @@ import type { StrategyType } from './types';
 import got from 'got';
 
 const clientInfo = {
-  id: process.env.IAM_GITHUB_ID,
-  secret: process.env.IAM_GITHUB_SECRET,
+  id: 'b5ecd6657430e2c5ee57', //process.env.IAM_GITHUB_ID,
+  secret: '94c95b6796ec7c59172baf61bcdad352de8159b1', //process.env.IAM_GITHUB_SECRET,
 };
 
 const authorize_uri = 'https://github.com/login/oauth/authorize';
 const access_token_uri = 'https://github.com/login/oauth/access_token';
 const userinfo_uri = 'https://api.github.com/user';
 const redirect_uri = `${config.apiUrl}/api/plugin:com.msgbyte.iam/github/redirect`;
+// const redirect_uri = `https://tailchat-nightly.moonrailgun.com/api/plugin:com.msgbyte.iam/github/redirect`;
 
 export const GithubStrategy: StrategyType = {
   name: 'github',
@@ -53,7 +54,7 @@ export const GithubStrategy: StrategyType = {
     return {
       id: String(result.id),
       nickname: result.name,
-      email: result.email,
+      email: result.email || String(result.id) + '@github.com',
       avatar: result.avatar_url,
     };
   },

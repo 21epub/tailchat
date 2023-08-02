@@ -29,6 +29,8 @@ class IAMService extends TcService {
     );
 
     this.registerAction('availableStrategies', () => {
+      console.log('[pluginLoginAction]availableStrategies', strategies);
+
       return availableStrategies.map((s) => ({
         name: s.name,
         type: s.type,

@@ -234,6 +234,17 @@ class UserService extends TcService {
         avatar: { type: 'string', optional: true },
       },
     });
+    this.registerAction('ensureAIBot', this.ensureAIBot, {
+      params: {
+        /**
+         * 用户名唯一id, 创建的用户邮箱会为 <botId>@tailchat-plugin.com
+         */
+        botId: 'string',
+        nickname: 'string',
+        avatar: { type: 'string', optional: true },
+      },
+    });
+
     this.registerAction('findOpenapiBotId', this.findOpenapiBotId, {
       params: {
         email: 'string',
@@ -265,8 +276,58 @@ class UserService extends TcService {
       '/resetPassword',
     ]);
     this.registerAction('getAllUsers', this.getAllUsers);
+
+    this.registerAction('servicenotify.webhook.callback', this.webhookHandler, {
+      params: {
+        text: 'string',
+      },
+    });
   }
 
+  async webhookHandler(
+    ctx: TcContext<{
+      text: string;
+    }>
+  ): Promise<string> {
+    const text = ctx.params.text;
+    const botUserId = await ctx.call('user.ensureAIBot', {
+      botId: 'servicenotify',
+      nickname: 'Service Notify',
+      avatar: '/plugins/com.msgbyte.servicenotify/assets/icon.png',
+    });
+
+    this.logger.info('Github Bot Id:', botUserId);
+    const memberId = String(botUserId);
+
+    const converseInfo = await ctx.call('chat.converse.createDMConverseSelf', {
+      memberIds: [memberId],
+    });
+
+    return JSON.stringify(converseInfo);
+  }
+
+  // /**
+  //  * 处理github webhook 回调
+  //  */
+  // async webhookHandler(text) {
+  //   return text
+  //   // if (!this.botUserId) {
+  //   //   throw new Error('Not Simple Notify bot');
+  //   // }
+
+  //   // const subscribe = await this.adapter.model.findById(ctx.params.subscribeId);
+  //   // if (!subscribe) {
+  //   //   throw new Error('没有找到该订阅');
+  //   // }
+
+  //   // const groupId = subscribe.groupId;
+  //   // const converseId = String(subscribe.converseId);
+  //   // await this.sendPluginBotMessage(ctx, {
+  //   //   groupId,
+  //   //   converseId,
+  //   //   content: ctx.params.text,
+  //   // });
+  // }
   /**
    * 获取所有好友
    */
@@ -1040,7 +1101,49 @@ class UserService extends TcService {
 
     return user.settings;
   }
+  async ensureAIBot(
+    ctx: TcContext<{
+      botId: string;
+      nickname: string;
+      avatar: string;
+    }>
+  ): Promise<string> {
+    const { botId, nickname, avatar } = ctx.params;
+    const email = this.buildPluginBotEmail(botId);
 
+    const bot = await this.adapter.model.findOne({
+      email,
+    });
+
+    if (bot) {
+      if (bot.nickname !== nickname || bot.avatar !== avatar) {
+        /**
+         * 如果信息不匹配，则更新
+         */
+        this.logger.info('检查到插件机器人信息不匹配, 更新机器人信息:', {
+          nickname,
+          avatar,
+        });
+        await bot.updateOne({
+          nickname,
+          avatar,
+        });
+        await this.cleanUserInfoCache(String(bot._id));
+      }
+
+      return String(bot._id);
+    }
+
+    // 如果不存在，则创建
+    const newBot = await this.adapter.model.create({
+      email,
+      nickname,
+      avatar,
+      type: 'pluginBot',
+    });
+
+    return String(newBot._id);
+  }
   async ensurePluginBot(
     ctx: TcContext<{
       botId: string;

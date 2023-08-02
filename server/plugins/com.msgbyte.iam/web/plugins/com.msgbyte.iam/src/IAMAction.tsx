@@ -52,7 +52,7 @@ export const IAMAction: React.FC = React.memo(() => {
       window.removeEventListener('message', fn);
     };
   }, []);
-
+  console.log('[pluginLoginAction]loading', loading, strategies);
   if (loading) {
     return null;
   }
@@ -84,6 +84,7 @@ export const IAMAction: React.FC = React.memo(() => {
                       const { data: url } = await request.get(
                         `${s.name}.loginUrl`
                       );
+                      // https://github.com/login/oauth/authorize?client_id=71915e9e61563b5c5761&redirect_uri=https://tailchat-nightly.moonrailgun.com/api/plugin:com.msgbyte.iam/github/redirect
 
                       const win = window.open(url, 'square', 'frame=true');
                       newWin.current = win;
