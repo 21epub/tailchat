@@ -37,6 +37,8 @@ spec:
               value: tailchat
             - name: MINIO_PASS
               value: com.msgbyte.tailchat
+            - name: API_URL
+              value: https://tailchat.21epub.com
           ports:
             - containerPort: 11000
           livenessProbe:

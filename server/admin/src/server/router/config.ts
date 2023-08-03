@@ -21,6 +21,15 @@ router.get('/client', auth(), async (req, res, next) => {
 });
 
 router.patch('/client', auth(), async (req, res, next) => {
+  if (req.body.key == 'announcement') {
+    const value = req.body.value;
+    await broker.call('servicenotify.createServiceNotify', {
+      servenotifyid: String(value.id),
+      text: value.text,
+      link: value.link,
+    });
+  }
+
   try {
     await broker.call('config.setClientConfig', {
       key: req.body.key,

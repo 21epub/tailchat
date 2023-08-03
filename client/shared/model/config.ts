@@ -40,6 +40,13 @@ export interface GlobalConfig {
    * 是否禁用创建群组功能
    */
   disableCreateGroup?: boolean;
+  announcement?:
+    | false
+    | {
+        id: string;
+        text: string;
+        link?: string;
+      };
 }
 
 export function getGlobalConfig(): GlobalConfig {

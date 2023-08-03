@@ -34,11 +34,13 @@ class ConfigService extends TcService {
         key: 'string',
         value: 'any',
       },
-      visibility: 'public',
+      // visibility: 'public',
     });
     this.registerAction('all', this.all, {
-      visibility: 'public',
+      // visibility: 'public',
     });
+    this.registerAction('test', this.test, {});
+
     this.registerAction('get', this.get, {
       visibility: 'public',
       params: {
@@ -82,6 +84,8 @@ class ConfigService extends TcService {
       disableUserRegister: config.feature.disableUserRegister,
       disableGuestLogin: config.feature.disableGuestLogin,
       disableCreateGroup: config.feature.disableCreateGroup,
+      disablePluginStore: config.feature.disablePluginStore,
+      disableAddFriend: config.feature.disableAddFriend,
       ...persistConfig,
     };
   }
@@ -98,10 +102,17 @@ class ConfigService extends TcService {
     }>
   ) {
     const { key, value } = ctx.params;
-    await this.adapter.model.setClientPersistConfig(key, value);
+    const newConfig = await this.adapter.model.setClientPersistConfig(
+      key,
+      value
+    );
     await this.cleanActionCache('client', []);
+    this.broadcastNotify(ctx, 'updateClientConfig', newConfig);
   }
 
+  async test(ctx: TcContext) {
+    return this.config;
+  }
   async all(ctx: TcContext) {
     return this.config;
   }

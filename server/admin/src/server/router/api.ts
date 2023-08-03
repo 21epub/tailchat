@@ -153,6 +153,8 @@ router.post('/users/system/notify', auth(), async (req, res) => {
     },
   });
 
+  // const config = await broker.call('config.client');
+
   res.json({ userIds });
 });
 router.use(
