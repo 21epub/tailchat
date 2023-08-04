@@ -18,6 +18,8 @@ spec:
           image: 21epub-registry-vpc.cn-hangzhou.cr.aliyuncs.com/21epub/tailchat:latest
           imagePullPolicy: Always
           env:
+            - name: DATE
+              value: ${DATETIME}            
             - name: TRANSPORTER
               value: redis://redis-service:6379
             - name: REDIS_URL
